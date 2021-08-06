@@ -74,40 +74,61 @@ class _VideoCallState extends State<VideoCall> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Stack(
       children: [
-        OrientationBuilder(
-          builder: (context, orientation) {
-            return Center(
-              child: Container(
-                margin: EdgeInsets.all(0.0),
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height,
-                child: RTCVideoView(_videoRenderer),
-              ),
-            );
-          },
+        Container(
+          child: OrientationBuilder(
+            builder: (context, orientation) {
+              return Center(
+                child: Container(
+                  margin: EdgeInsets.all(0.0),
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height,
+                  child: RTCVideoView(_videoRenderer),
+                ),
+              );
+            },
+          ),
         ),
-        Row(
-          children: [
-            FloatingActionButton(
-              onPressed: () {
-                print('cam');
-              },
-              child: Icon(Icons.videocam_rounded),
+        Container(
+          margin: EdgeInsets.only(top: 500),
+          padding: EdgeInsets.fromLTRB(30, 29, 30, 48),
+          color: Colors.transparent,
+          child: Center(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  child: FloatingActionButton(
+                    heroTag: '1',
+                    onPressed: () {
+                      print('cam');
+                    },
+                    child: Icon(Icons.videocam_rounded),
+                  ),
+                ),
+                Container(
+                  margin: EdgeInsets.only(left: 35, right: 35),
+                  child: FloatingActionButton(
+                    heroTag: '2',
+                    onPressed: () {
+                      print('mic');
+                    },
+                    child: Icon(Icons.mic),
+                  ),
+                ),
+                Container(
+                  child: FloatingActionButton(
+                    heroTag: '3',
+                    onPressed: _inCalling ? _hangUp : _makeCall,
+                    tooltip: _inCalling ? 'Hangup' : 'Call',
+                    child: Icon(
+                        _inCalling ? Icons.call_end_sharp : Icons.call_sharp),
+                  ),
+                ),
+              ],
             ),
-            FloatingActionButton(
-              onPressed: () {
-                print('mic');
-              },
-              child: Icon(Icons.mic),
-            ),
-            FloatingActionButton(
-              onPressed: _inCalling ? _hangUp : _makeCall,
-              tooltip: _inCalling ? 'Hangup' : 'Call',
-              child: Icon(_inCalling ? Icons.call_end_sharp : Icons.call_sharp),
-            ),
-          ],
+          ),
         )
       ],
     );
