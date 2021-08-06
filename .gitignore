@@ -132,3 +132,4 @@ app.*.map.json
 !.idea/codeStyles/
 !.idea/dictionaries/
 !.idea/runConfigurations/
+/android/settings_aar.gradle
