@@ -2,19 +2,63 @@ import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 
 class VideoCall extends StatefulWidget {
-  VideoCall({Key? key}) : super(key: key);
+  final String host;
+
+  VideoCall({Key? key, required this.host}) : super(key: key);
 
   @override
   _VideoCallState createState() => _VideoCallState();
 }
 
 class _VideoCallState extends State<VideoCall> {
-  MediaStream? _mediaStream;
-  final _videoRenderer = RTCVideoRenderer();
+  Signaling _signaling;
+  List<dynamic> _peers;
+  var _selfId;
+  RTCVideoRenderer _localRenderer = RTCVideoRenderer();
+  RTCVideoRenderer _remoteRenderer = RTCVideoRenderer();
   bool _inCalling = false;
+  Session _session;
 
   initRenderers() async {
-    await _videoRenderer.initialize();
+    await _localRenderer.initialize();
+    await _remoteRenderer.initialize();
+  }
+
+  void _connect() async {
+    if (_signaling == null) {
+      _signaling = Signaling(widget.host)..connect();
+
+      _signaling.onSignalingStateChange = (SignalingState state) {
+        switch (state) {
+          case SignalingState.ConnectionClosed:
+          case SignalingState.ConnectionError:
+          case SignalingState.ConnectionOpen:
+            break;
+        }
+      };
+
+      _signaling.onCallStateChange = (Session session, CallState state) {
+        switch (state) {
+          case CallState.CallStateNew:
+            setState(() {
+              _session = session;
+              _inCalling = true;
+            });
+            break;
+          case CallState.CallStateBye:
+            setState(() {
+              _localRenderer.srcObject = null;
+              _remoteRenderer.srcObject = null;
+              _inCalling = false;
+              _session = null;
+            });
+            break;
+          case CallState.CallStateInvite:
+          case CallState.CallStateConnected:
+          case CallState.CallStateRinging:
+        }
+      };
+    }
   }
 
   _makeCall() async {
@@ -46,29 +90,25 @@ class _VideoCallState extends State<VideoCall> {
     });
   }
 
-  _hangUp() async {
-    try {
-      await _mediaStream!.dispose();
-      _videoRenderer.srcObject = null;
-    } catch (e) {
-      print(e.toString());
+  _hangUp() {
+    if (_signaling != null) {
+      _signaling.bye(_session.sid);
     }
-    setState(() {
-      _inCalling = false;
-    });
   }
 
   @override
   void initState() {
     super.initState();
     initRenderers();
+    _connect();
   }
 
   @override
   void deactivate() {
     super.deactivate();
-    if (_inCalling) {
-      _hangUp();
+    if (_signaling != null) _signaling.close();
+    _localRenderer.dispose();
+    _remoteRenderer.dispose();
     }
   }
 
