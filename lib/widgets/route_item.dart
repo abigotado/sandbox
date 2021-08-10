@@ -6,12 +6,12 @@ typedef void RouteCallback(BuildContext context);
 
 class RouteItem {
   final String title;
-  final String subtitle;
-  final RouteCallback push;
+  final String? subtitle;
+  final RouteCallback? push;
 
   RouteItem({
     required this.title,
-    required this.subtitle,
-    required this.push,
+    this.subtitle,
+    this.push,
   });
 }

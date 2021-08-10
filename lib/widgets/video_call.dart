@@ -5,9 +5,9 @@ import 'package:flutter_sandbox/widgets/signaling.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 
 class VideoCall extends StatefulWidget {
-  final String? host;
+  final String host = 'wss://flutter-sandbox-abigotado.herokuapp.com';
 
-  VideoCall({Key? key, this.host}) : super(key: key);
+  VideoCall({Key? key}) : super(key: key);
 
   @override
   _VideoCallState createState() => _VideoCallState();
@@ -15,7 +15,7 @@ class VideoCall extends StatefulWidget {
 
 class _VideoCallState extends State<VideoCall> {
   Signaling? _signaling;
-  List<dynamic>? _peers;
+  List<dynamic> _peers = [];
   var _selfId;
   RTCVideoRenderer _localRenderer = RTCVideoRenderer();
   RTCVideoRenderer _remoteRenderer = RTCVideoRenderer();
@@ -27,6 +27,7 @@ class _VideoCallState extends State<VideoCall> {
     super.initState();
     initRenderers();
     _connect();
+    print('init' + '$_selfId');
   }
 
   initRenderers() async {
@@ -120,28 +121,18 @@ class _VideoCallState extends State<VideoCall> {
 
   _buildRow(context, peer) {
     var self = (peer['id'] == _selfId);
+    print('row');
     return ListBody(children: <Widget>[
       ListTile(
         title: Text(self
             ? peer['name'] + '[Your self]'
             : peer['name'] + '[' + peer['user_agent'] + ']'),
         onTap: null,
-        trailing: SizedBox(
-            width: 100.0,
-            child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  IconButton(
-                    icon: const Icon(Icons.videocam),
-                    onPressed: () => _invitePeer(context, peer['id'], false),
-                    tooltip: 'Video calling',
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.screen_share),
-                    onPressed: () => _invitePeer(context, peer['id'], true),
-                    tooltip: 'Screen sharing',
-                  )
-                ])),
+        trailing: IconButton(
+          icon: const Icon(Icons.videocam),
+          onPressed: () => _invitePeer(context, peer['id'], false),
+          tooltip: 'Video calling',
+        ),
         subtitle: Text('id: ' + peer['id']),
       ),
       Divider()
@@ -150,6 +141,7 @@ class _VideoCallState extends State<VideoCall> {
 
   @override
   Widget build(BuildContext context) {
+    print('build');
     return Scaffold(
       appBar: AppBar(
         title: Text('P2P Call Sample'),
@@ -161,66 +153,69 @@ class _VideoCallState extends State<VideoCall> {
           ),
         ],
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: _inCalling
-          ? SizedBox(
-              width: 200.0,
-              child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    FloatingActionButton(
-                      child: const Icon(Icons.switch_camera),
-                      onPressed: _switchCamera,
-                    ),
-                    FloatingActionButton(
-                      onPressed: _hangUp,
-                      tooltip: 'Hangup',
-                      child: Icon(Icons.call_end),
-                      backgroundColor: Colors.pink,
-                    ),
-                    FloatingActionButton(
-                      child: const Icon(Icons.mic_off),
-                      onPressed: _muteMic,
-                    )
-                  ]))
-          : null,
-      body: _inCalling
-          ? OrientationBuilder(builder: (context, orientation) {
-              return Container(
-                child: Stack(children: <Widget>[
-                  Positioned(
-                      left: 0.0,
-                      right: 0.0,
-                      top: 0.0,
-                      bottom: 0.0,
-                      child: Container(
-                        margin: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
-                        width: MediaQuery.of(context).size.width,
-                        height: MediaQuery.of(context).size.height,
-                        child: RTCVideoView(_remoteRenderer),
-                        decoration: BoxDecoration(color: Colors.black54),
-                      )),
-                  Positioned(
-                    left: 20.0,
-                    top: 20.0,
-                    child: Container(
-                      width: orientation == Orientation.portrait ? 90.0 : 120.0,
-                      height:
-                          orientation == Orientation.portrait ? 120.0 : 90.0,
-                      child: RTCVideoView(_localRenderer, mirror: true),
-                      decoration: BoxDecoration(color: Colors.black54),
-                    ),
-                  ),
-                ]),
-              );
-            })
-          : ListView.builder(
-              shrinkWrap: true,
-              padding: const EdgeInsets.all(0.0),
-              itemCount: (_peers != null ? _peers!.length : 0),
-              itemBuilder: (context, i) {
-                return _buildRow(context, _peers![i]);
-              }),
+      // floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      // floatingActionButton: _inCalling
+      //     ? SizedBox(
+      //         width: 200.0,
+      //         child: Row(
+      //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      //             children: <Widget>[
+      //               FloatingActionButton(
+      //                 child: const Icon(Icons.switch_camera),
+      //                 onPressed: _switchCamera,
+      //               ),
+      //               FloatingActionButton(
+      //                 onPressed: _hangUp,
+      //                 tooltip: 'Hangup',
+      //                 child: Icon(Icons.call_end),
+      //                 backgroundColor: Colors.pink,
+      //               ),
+      //               FloatingActionButton(
+      //                 child: const Icon(Icons.mic_off),
+      //                 onPressed: _muteMic,
+      //               )
+      //             ]))
+      //     : null,
+      // body: _inCalling
+      //     ? OrientationBuilder(builder: (context, orientation) {
+      //         return Container(
+      //           child: Stack(children: <Widget>[
+      //             Positioned(
+      //                 left: 0.0,
+      //                 right: 0.0,
+      //                 top: 0.0,
+      //                 bottom: 0.0,
+      //                 child: Container(
+      //                   margin: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+      //                   width: MediaQuery.of(context).size.width,
+      //                   height: MediaQuery.of(context).size.height,
+      //                   child: RTCVideoView(_remoteRenderer),
+      //                   decoration: BoxDecoration(color: Colors.black54),
+      //                 )),
+      //             Positioned(
+      //               left: 20.0,
+      //               top: 20.0,
+      //               child: Container(
+      //                 width: orientation == Orientation.portrait ? 90.0 : 120.0,
+      //                 height:
+      //                     orientation == Orientation.portrait ? 120.0 : 90.0,
+      //                 child: RTCVideoView(_localRenderer, mirror: true),
+      //                 decoration: BoxDecoration(color: Colors.black54),
+      //               ),
+      //             ),
+      //           ]),
+      //         );
+      //       })
+      body: ListView.builder(
+          shrinkWrap: true,
+          padding: const EdgeInsets.all(0.0),
+          itemCount: (1),
+          itemBuilder: (context, i) {
+            // return _buildRow(context, _peers[i]);
+            return ListTile(
+              title: Text('list $_selfId'),
+            );
+          }),
     );
   }
 }

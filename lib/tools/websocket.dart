@@ -53,14 +53,13 @@ class SimpleWebSocket {
       };
 
       HttpClientRequest request = await client
-          .getUrl(Uri.parse('wss://flutter-sandbox-abigotado.herokuapp.com'));
+          .getUrl(Uri.parse('https://flutter-sandbox-abigotado.herokuapp.com'));
       request.headers.add('Connection', 'Upgrade');
       request.headers.add('Upgrade', 'websocket');
       request.headers.add('Sec-WebSocket-Version', '13');
       request.headers.add('Sec-WebSocket-Key', key.toLowerCase());
 
       HttpClientResponse response = await request.close();
-      // ignore: close_sinks
       Socket socket = await response.detachSocket();
       var webSocket = WebSocket.fromUpgradedSocket(
         socket,
