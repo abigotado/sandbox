@@ -46,7 +46,7 @@ class Signaling {
   String _selfId = randomNumeric(6);
   SimpleWebSocket? _socket;
   var _host;
-  var _port = 8086;
+  var _port = 80;
   var _turnCredential;
   Map<String, Session?> _sessions = {};
   MediaStream? _localStream;
@@ -248,6 +248,7 @@ class Signaling {
 
     _socket!.onOpen = () {
       print('onOpen');
+      print(_selfId);
       onSignalingStateChange?.call(SignalingState.ConnectionOpen);
       _send('new', {
         'name': DeviceInfo.label,

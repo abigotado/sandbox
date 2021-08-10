@@ -5,7 +5,7 @@ import 'package:flutter_sandbox/widgets/signaling.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 
 class VideoCall extends StatefulWidget {
-  final String host = 'wss://flutter-sandbox-abigotado.herokuapp.com';
+  final String host = 'flutter-sandbox-abigotado.herokuapp.com';
 
   VideoCall({Key? key}) : super(key: key);
 
@@ -54,6 +54,7 @@ class _VideoCallState extends State<VideoCall> {
           case SignalingState.ConnectionOpen:
             break;
         }
+        print(_selfId);
       };
 
       _signaling!.onCallStateChange = (Session? session, CallState state) {
@@ -209,12 +210,12 @@ class _VideoCallState extends State<VideoCall> {
       body: ListView.builder(
           shrinkWrap: true,
           padding: const EdgeInsets.all(0.0),
-          itemCount: (1),
+          itemCount: (_peers.length != null ? _peers.length : 0),
           itemBuilder: (context, i) {
-            // return _buildRow(context, _peers[i]);
-            return ListTile(
-              title: Text('list $_selfId'),
-            );
+            return _buildRow(context, _peers[i]);
+            // return ListTile(
+            //   title: Text('list $_selfId'),
+            // );
           }),
     );
   }
